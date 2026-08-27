@@ -2,6 +2,10 @@
 
 A small fake storefront that shows a ChatThing widget discovering and using tools provided by its host page through WebMCP.
 
+[![Watch the 24-second ChatThing WebMCP demo](https://files.catbox.moe/1r9ug2.jpg)](https://files.catbox.moe/6izvwd.mp4)
+
+[Watch the 24-second MP4](https://files.catbox.moe/6izvwd.mp4)
+
 The assistant can:
 
 - search the products rendered on the page;
