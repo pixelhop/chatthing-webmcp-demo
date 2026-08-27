@@ -18,7 +18,16 @@ Everything is fake and runs in the browser. The catalogue, bag and delivery resu
 
 The page exposes three tools through `document.modelContext`. ChatThing loads with `webMcp: true`, discovers the compatible tool schemas and mirrors them into the embedded conversation. When the model invokes a tool, the SDK forwards the call to the host page and returns its result to the conversation.
 
-The demo includes a minimal `ModelContext` shim so it remains demonstrable in browsers that do not yet ship a native WebMCP implementation. It follows the same `getTools()`, `executeTool()` and `toolchange` contract used by the ChatThing bridge.
+The demo feature-detects the runtime at startup:
+
+- when the browser supplies a complete `document.modelContext`, the tools are registered with that native runtime;
+- otherwise, the page installs a minimal compatibility shim implementing the same `registerTool()`, `getTools()`, `executeTool()` and `toolchange` contract.
+
+The status in the page header reports whether the current session is using the `native` or `shim` runtime.
+
+## SDK behavior without WebMCP
+
+ChatThing does not require a WebMCP runtime. With `webMcp` omitted or false, the bridge is never started. With `webMcp: true` in a browser that has no valid `document.modelContext`, the SDK logs a warning and safely leaves the bridge off; the rest of the widget continues to work normally.
 
 ## Configure a bot
 

@@ -526,9 +526,9 @@
       ];
 
       class DemoModelContext extends EventTarget {
-        constructor(initialTools) {
+        constructor() {
           super();
-          this.tools = [...initialTools];
+          this.tools = [];
         }
         async getTools() {
           return [...this.tools];
@@ -560,14 +560,42 @@
         }
       }
 
-      Object.defineProperty(document, "modelContext", {
-        configurable: true,
-        value: new DemoModelContext(tools),
-      });
+      const candidate = document.modelContext;
+      const hasNativeRuntime =
+        candidate &&
+        typeof candidate.registerTool === "function" &&
+        typeof candidate.getTools === "function" &&
+        typeof candidate.executeTool === "function" &&
+        typeof candidate.addEventListener === "function" &&
+        typeof candidate.removeEventListener === "function";
+
+      const modelContext = hasNativeRuntime
+        ? candidate
+        : new DemoModelContext();
+      const runtimeKind = hasNativeRuntime ? "native" : "shim";
+
+      if (!hasNativeRuntime) {
+        Object.defineProperty(document, "modelContext", {
+          configurable: true,
+          value: modelContext,
+        });
+      }
+
+      const registrations = await Promise.allSettled(
+        tools.map((tool) =>
+          Promise.resolve().then(() => modelContext.registerTool(tool))
+        )
+      );
+      const registeredToolCount = registrations.filter(
+        (registration) => registration.status === "fulfilled"
+      ).length;
+
       window.__webMcpDemo = {
         catalogue,
         cart,
-        modelContext: document.modelContext,
+        modelContext,
+        runtimeKind,
+        registeredToolCount,
       };
 
       const demoConfig = window.WEBMCP_DEMO_CONFIG || {};
@@ -581,27 +609,27 @@
 
       if (!botId) {
         document.getElementById("connection-status").textContent =
-          "Page tools ready · add a bot ID";
+          `${registeredToolCount} page tools · ${runtimeKind} runtime · add a bot ID`;
       } else {
         document.getElementById("connection-status").textContent =
-          "3 page tools connected";
+          `${registeredToolCount} page tools connected · ${runtimeKind} runtime`;
         window.chatThingConfig = {
           botId,
           url: chatThingUrl,
-        webMcp: true,
-        autoOpenDelay: 700,
-        theme: "light",
-        colour: {
-          primaryColour: "#1e5c4d",
-          primaryColourInverted: "#ffffff",
-          widgetColour: "#1e5c4d",
-          widgetColourInverted: "#ffffff",
-        },
-        launcherLabel: "Ask Cedar",
-        css: {
-          window:
-            "position: fixed; z-index: 2147483000; right: 24px; bottom: 96px; width: 440px; height: calc(100vh - 150px); max-height: 700px; display: none; overflow: hidden; background: #fff; border-radius: 22px; box-shadow: 0 28px 80px rgba(16, 44, 36, 0.22); border: 1px solid rgba(24,49,45,.12);",
-        },
+          webMcp: true,
+          autoOpenDelay: 700,
+          theme: "light",
+          colour: {
+            primaryColour: "#1e5c4d",
+            primaryColourInverted: "#ffffff",
+            widgetColour: "#1e5c4d",
+            widgetColourInverted: "#ffffff",
+          },
+          launcherLabel: "Ask Cedar",
+          css: {
+            window:
+              "position: fixed; z-index: 2147483000; right: 24px; bottom: 96px; width: 440px; height: calc(100vh - 150px); max-height: 700px; display: none; overflow: hidden; background: #fff; border-radius: 22px; box-shadow: 0 28px 80px rgba(16, 44, 36, 0.22); border: 1px solid rgba(24,49,45,.12);",
+          },
         };
 
         const script = document.createElement("script");
