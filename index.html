@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cedar &amp; Coast — WebMCP demo</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #18312d;
+        --muted: #6d7772;
+        --cream: #f5f2ea;
+        --paper: #fffdf8;
+        --sage: #dce7dc;
+        --green: #1e5c4d;
+        --line: rgba(24, 49, 45, 0.13);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        overflow: hidden;
+        background: var(--cream);
+        color: var(--ink);
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          sans-serif;
+      }
+
+      .announcement {
+        height: 34px;
+        display: grid;
+        place-items: center;
+        background: var(--ink);
+        color: #f8f2e6;
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      header {
+        height: 78px;
+        display: flex;
+        align-items: center;
+        gap: 44px;
+        padding: 0 42px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(255, 253, 248, 0.94);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        font:
+          700 19px/1 Georgia,
+          serif;
+        letter-spacing: 0.01em;
+      }
+
+      .brand-mark {
+        width: 30px;
+        height: 30px;
+        display: grid;
+        place-items: center;
+        border-radius: 50% 50% 45% 55%;
+        background: var(--green);
+        color: white;
+        font:
+          700 14px/1 Georgia,
+          serif;
+      }
+
+      nav {
+        display: flex;
+        gap: 28px;
+        font-size: 13px;
+        color: #45534e;
+      }
+
+      .header-actions {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        font-size: 13px;
+      }
+
+      .connected {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: var(--green);
+        font-weight: 650;
+      }
+
+      .connected::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #4baa78;
+        box-shadow: 0 0 0 4px rgba(75, 170, 120, 0.12);
+      }
+
+      .cart-pill {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        padding: 9px 14px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: white;
+        font-weight: 650;
+      }
+
+      .cart-count {
+        min-width: 20px;
+        height: 20px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: var(--green);
+        color: white;
+        font-size: 11px;
+      }
+
+      main {
+        width: calc(100% - 500px);
+        max-width: 960px;
+        padding: 42px 34px 40px 54px;
+      }
+
+      .eyebrow {
+        margin: 0 0 10px;
+        color: var(--green);
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        max-width: 670px;
+        margin: 0;
+        font:
+          500 clamp(38px, 4vw, 62px) / 0.98 Georgia,
+          serif;
+        letter-spacing: -0.035em;
+      }
+
+      .intro {
+        max-width: 610px;
+        margin: 18px 0 28px;
+        color: var(--muted);
+        font:
+          15px/1.65 Georgia,
+          serif;
+      }
+
+      .products {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .product {
+        position: relative;
+        overflow: hidden;
+        min-height: 276px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: var(--paper);
+        box-shadow: 0 12px 35px rgba(30, 48, 43, 0.05);
+        transition:
+          transform 300ms ease,
+          box-shadow 300ms ease;
+      }
+
+      .product.added {
+        transform: translateY(-4px);
+        box-shadow: 0 18px 42px rgba(30, 92, 77, 0.16);
+      }
+
+      .product-art {
+        height: 178px;
+        display: grid;
+        place-items: center;
+        background: var(--product-bg);
+        font-size: 76px;
+      }
+
+      .product-copy {
+        padding: 16px 17px 17px;
+      }
+
+      .product-meta {
+        margin-bottom: 5px;
+        color: #7c857f;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .product-name-row {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .product-name {
+        font:
+          600 17px/1.2 Georgia,
+          serif;
+      }
+
+      .product-price {
+        color: var(--green);
+        font-size: 14px;
+        font-weight: 750;
+      }
+
+      .demo-hint {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: fit-content;
+        margin-top: 22px;
+        padding: 10px 14px;
+        border: 1px solid rgba(30, 92, 77, 0.15);
+        border-radius: 12px;
+        background: var(--sage);
+        color: #315b50;
+        font-size: 12px;
+      }
+
+      .demo-hint strong {
+        color: var(--ink);
+      }
+
+      .activity {
+        position: fixed;
+        left: 50%;
+        bottom: 28px;
+        z-index: 2147483001;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 17px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 999px;
+        background: rgba(24, 49, 45, 0.94);
+        color: white;
+        box-shadow: 0 14px 40px rgba(9, 28, 23, 0.25);
+        font-size: 13px;
+        opacity: 0;
+        transform: translate(-50%, 18px);
+        transition:
+          opacity 250ms ease,
+          transform 250ms ease;
+        pointer-events: none;
+      }
+
+      .activity.show {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+
+      .activity-icon {
+        width: 22px;
+        height: 22px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: #4baa78;
+        font-weight: 800;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="announcement">Free delivery on considered pieces over £60</div>
+    <header>
+      <div class="brand">
+        <span class="brand-mark">C</span>Cedar &amp; Coast
+      </div>
+      <nav>
+        <span>New arrivals</span><span>Lighting</span><span>Living</span
+        ><span>Journal</span>
+      </nav>
+      <div class="header-actions">
+        <span class="connected" id="connection-status">Page tools ready</span>
+        <div class="cart-pill">
+          Bag <span class="cart-count" id="cart-count">0</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <p class="eyebrow">Quiet objects, thoughtfully made</p>
+      <h1>Warm light for slower evenings.</h1>
+      <p class="intro">
+        Tactile lighting and useful objects from independent makers. Designed to
+        feel at home for years, not seasons.
+      </p>
+
+      <section class="products" aria-label="Featured lighting">
+        <article
+          class="product"
+          data-product="Sandstone Table Lamp"
+          style="--product-bg: #e9dfcc"
+        >
+          <div class="product-art" aria-hidden="true">◒</div>
+          <div class="product-copy">
+            <div class="product-meta">Hand-thrown ceramic · warm light</div>
+            <div class="product-name-row">
+              <span class="product-name">Sandstone Table Lamp</span
+              ><span class="product-price">£68</span>
+            </div>
+          </div>
+        </article>
+        <article
+          class="product"
+          data-product="Moss Glass Lamp"
+          style="--product-bg: #cad7ca"
+        >
+          <div class="product-art" aria-hidden="true">◐</div>
+          <div class="product-copy">
+            <div class="product-meta">Recycled glass · soft glow</div>
+            <div class="product-name-row">
+              <span class="product-name">Moss Glass Lamp</span
+              ><span class="product-price">£74</span>
+            </div>
+          </div>
+        </article>
+        <article
+          class="product"
+          data-product="Linen Shade Lamp"
+          style="--product-bg: #ddd2c6"
+        >
+          <div class="product-art" aria-hidden="true">◓</div>
+          <div class="product-copy">
+            <div class="product-meta">Oak &amp; linen · ambient light</div>
+            <div class="product-name-row">
+              <span class="product-name">Linen Shade Lamp</span
+              ><span class="product-price">£92</span>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <div class="demo-hint">
+        <span>✦</span
+        ><span
+          ><strong>Try asking:</strong> “Find a warm lamp under £70 and add it
+          to my bag.”</span
+        >
+      </div>
+    </main>
+
+    <div class="activity" id="activity">
+      <span class="activity-icon">✓</span><span id="activity-copy"></span>
+    </div>
+
+    <script type="module">
+      import "./config.js";
+
+      const params = new URLSearchParams(location.search);
+      const catalogue = [
+        {
+          name: "Sandstone Table Lamp",
+          price: 68,
+          material: "ceramic",
+          mood: "warm",
+          stock: 7,
+        },
+        {
+          name: "Moss Glass Lamp",
+          price: 74,
+          material: "recycled glass",
+          mood: "soft",
+          stock: 4,
+        },
+        {
+          name: "Linen Shade Lamp",
+          price: 92,
+          material: "oak and linen",
+          mood: "ambient",
+          stock: 9,
+        },
+      ];
+      const cart = [];
+      let activityTimer;
+
+      const result = (value) => ({
+        content: [{ type: "text", text: JSON.stringify(value) }],
+      });
+      const showActivity = (copy) => {
+        clearTimeout(activityTimer);
+        document.getElementById("activity-copy").textContent = copy;
+        document.getElementById("activity").classList.add("show");
+        activityTimer = setTimeout(
+          () => document.getElementById("activity").classList.remove("show"),
+          4200
+        );
+      };
+
+      const tools = [
+        {
+          name: "search_store_catalogue",
+          description:
+            "Search the products visible on this store page by mood, material, name, or maximum price.",
+          inputSchema: {
+            type: "object",
+            properties: {
+              query: {
+                type: "string",
+                description: "What the shopper is looking for",
+              },
+              maximum_price: {
+                type: "number",
+                description: "Optional maximum price in GBP",
+              },
+            },
+            required: ["query"],
+          },
+          async execute({ query, maximum_price }) {
+            const needle = String(query || "").toLowerCase();
+            const usefulWords = needle
+              .split(/\s+/)
+              .filter(
+                (word) =>
+                  word.length > 3 &&
+                  !["lamp", "light", "find", "under", "with"].includes(word)
+              );
+            const matches = catalogue.filter((item) => {
+              const searchable =
+                `${item.name} ${item.material} ${item.mood}`.toLowerCase();
+              return (
+                (searchable.includes(needle) ||
+                  usefulWords.some((word) => searchable.includes(word))) &&
+                (maximum_price == null || item.price <= Number(maximum_price))
+              );
+            });
+            showActivity(
+              `ChatThing searched ${catalogue.length} products on this page`
+            );
+            return result({ matches });
+          },
+        },
+        {
+          name: "add_store_item_to_bag",
+          description:
+            "Add one product from this page to the shopper's bag by its exact product name.",
+          inputSchema: {
+            type: "object",
+            properties: {
+              product_name: {
+                type: "string",
+                description: "Exact product name from the catalogue",
+              },
+            },
+            required: ["product_name"],
+          },
+          async execute({ product_name }) {
+            const product = catalogue.find(
+              (item) =>
+                item.name.toLowerCase() ===
+                String(product_name || "").toLowerCase()
+            );
+            if (!product)
+              return result({
+                error: "Product not found",
+                available: catalogue.map((item) => item.name),
+              });
+            cart.push(product);
+            document.getElementById("cart-count").textContent = String(
+              cart.length
+            );
+            const card = document.querySelector(
+              `[data-product="${product.name}"]`
+            );
+            card?.classList.add("added");
+            setTimeout(() => card?.classList.remove("added"), 3200);
+            showActivity(`${product.name} added to your bag`);
+            return result({
+              success: true,
+              item: product,
+              bag_items: cart.length,
+            });
+          },
+        },
+        {
+          name: "check_store_delivery",
+          description:
+            "Check this store's delivery estimate for a UK postcode.",
+          inputSchema: {
+            type: "object",
+            properties: {
+              postcode: { type: "string", description: "UK delivery postcode" },
+            },
+            required: ["postcode"],
+          },
+          async execute({ postcode }) {
+            showActivity(
+              `Delivery checked for ${String(postcode).toUpperCase()}`
+            );
+            return result({
+              postcode,
+              estimate: "2–3 working days",
+              price:
+                cart.reduce((sum, item) => sum + item.price, 0) >= 60
+                  ? 0
+                  : 4.95,
+            });
+          },
+        },
+      ];
+
+      class DemoModelContext extends EventTarget {
+        constructor(initialTools) {
+          super();
+          this.tools = [...initialTools];
+        }
+        async getTools() {
+          return [...this.tools];
+        }
+        async executeTool(tool, args) {
+          const current = this.tools.find(
+            (candidate) => candidate.name === tool?.name
+          );
+          if (!current)
+            throw new Error(
+              `Tool ${tool?.name || "unknown"} is no longer available`
+            );
+          return current.execute(args || {});
+        }
+        async registerTool(tool, options = {}) {
+          this.tools = [
+            ...this.tools.filter((candidate) => candidate.name !== tool.name),
+            tool,
+          ];
+          this.dispatchEvent(new Event("toolchange"));
+          options.signal?.addEventListener(
+            "abort",
+            () => {
+              this.tools = this.tools.filter((candidate) => candidate !== tool);
+              this.dispatchEvent(new Event("toolchange"));
+            },
+            { once: true }
+          );
+        }
+      }
+
+      Object.defineProperty(document, "modelContext", {
+        configurable: true,
+        value: new DemoModelContext(tools),
+      });
+      window.__webMcpDemo = {
+        catalogue,
+        cart,
+        modelContext: document.modelContext,
+      };
+
+      const demoConfig = window.WEBMCP_DEMO_CONFIG || {};
+      const botId = params.get("botId") || demoConfig.botId;
+      const chatThingUrl =
+        params.get("url") || demoConfig.chatThingUrl || "https://chatthing.ai";
+      const widgetScript =
+        params.get("script") ||
+        demoConfig.widgetScript ||
+        "https://chatthing-sdk.pages.dev/index.js";
+
+      if (!botId) {
+        document.getElementById("connection-status").textContent =
+          "Page tools ready · add a bot ID";
+      } else {
+        document.getElementById("connection-status").textContent =
+          "3 page tools connected";
+        window.chatThingConfig = {
+          botId,
+          url: chatThingUrl,
+        webMcp: true,
+        autoOpenDelay: 700,
+        theme: "light",
+        colour: {
+          primaryColour: "#1e5c4d",
+          primaryColourInverted: "#ffffff",
+          widgetColour: "#1e5c4d",
+          widgetColourInverted: "#ffffff",
+        },
+        launcherLabel: "Ask Cedar",
+        css: {
+          window:
+            "position: fixed; z-index: 2147483000; right: 24px; bottom: 96px; width: 440px; height: calc(100vh - 150px); max-height: 700px; display: none; overflow: hidden; background: #fff; border-radius: 22px; box-shadow: 0 28px 80px rgba(16, 44, 36, 0.22); border: 1px solid rgba(24,49,45,.12);",
+        },
+        };
+
+        const script = document.createElement("script");
+        script.src = widgetScript;
+        document.body.appendChild(script);
+      }
+    </script>
+  </body>
+</html>
